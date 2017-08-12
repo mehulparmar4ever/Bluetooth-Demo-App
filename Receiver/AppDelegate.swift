@@ -12,8 +12,16 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var service: BeaconService!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+
+        service = BeaconService()
+
+        if let rootVc = window?.rootViewController as? ViewController {
+            rootVc.beaconService = service
+        }
+
         return true
     }
 
