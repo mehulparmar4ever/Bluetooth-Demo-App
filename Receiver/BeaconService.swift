@@ -112,6 +112,7 @@ extension BeaconService: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
         if region.identifier == monitoredRegion.identifier {
             manager.stopRangingBeacons(in: monitoredRegion)
+            stateChanged?(.outside)
         }
     }
 

@@ -12,14 +12,20 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var service: BeaconService!
+
+    var network: NetworkService!
+    var beaconService: BeaconService!
+    var lockService: LockService!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
-        service = BeaconService()
+        network = NetworkService()
+        beaconService = BeaconService()
+        lockService = LockService(network: network)
 
         if let rootVc = window?.rootViewController as? ViewController {
-            rootVc.beaconService = service
+            rootVc.beaconService = beaconService
+            rootVc.lockService = lockService
         }
 
         return true

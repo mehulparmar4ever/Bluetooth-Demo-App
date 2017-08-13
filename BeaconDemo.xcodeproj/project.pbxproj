@@ -21,6 +21,8 @@
 		C848FE501F3EBA9300932D3B /* Identifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = C848FE4E1F3EBA6800932D3B /* Identifiers.swift */; };
 		C848FE521F3EBB4600932D3B /* BeaconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C848FE511F3EBB4600932D3B /* BeaconService.swift */; };
 		C8C88E731F3F05C900C24B72 /* BeaconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8C88E721F3F05C900C24B72 /* BeaconService.swift */; };
+		C8C88E751F404C2A00C24B72 /* LockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8C88E741F404C2A00C24B72 /* LockService.swift */; };
+		C8C88E771F405AF700C24B72 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8C88E761F405AF700C24B72 /* NetworkService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +43,8 @@
 		C848FE4E1F3EBA6800932D3B /* Identifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identifiers.swift; sourceTree = "<group>"; };
 		C848FE511F3EBB4600932D3B /* BeaconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconService.swift; sourceTree = "<group>"; };
 		C8C88E721F3F05C900C24B72 /* BeaconService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconService.swift; sourceTree = "<group>"; };
+		C8C88E741F404C2A00C24B72 /* LockService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockService.swift; sourceTree = "<group>"; };
+		C8C88E761F405AF700C24B72 /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +103,8 @@
 			children = (
 				C8470FEB1F3E071800B1AA98 /* AppDelegate.swift */,
 				C8C88E721F3F05C900C24B72 /* BeaconService.swift */,
+				C8C88E741F404C2A00C24B72 /* LockService.swift */,
+				C8C88E761F405AF700C24B72 /* NetworkService.swift */,
 				C8470FED1F3E071800B1AA98 /* ViewController.swift */,
 				C8470FEF1F3E071800B1AA98 /* Main.storyboard */,
 				C8470FF21F3E071800B1AA98 /* Assets.xcassets */,
@@ -235,6 +241,8 @@
 				C848FE501F3EBA9300932D3B /* Identifiers.swift in Sources */,
 				C8470FEC1F3E071800B1AA98 /* AppDelegate.swift in Sources */,
 				C8C88E731F3F05C900C24B72 /* BeaconService.swift in Sources */,
+				C8C88E771F405AF700C24B72 /* NetworkService.swift in Sources */,
+				C8C88E751F404C2A00C24B72 /* LockService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
