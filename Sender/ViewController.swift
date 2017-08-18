@@ -23,16 +23,39 @@ class ViewController: UIViewController {
 
         startBeacon()
     }
+    @IBAction func modeChanged(_ sender: UISegmentedControl) {
+        var newMode: DeviceBluetoothMode? = nil
+        if sender.selectedSegmentIndex == 0 {
+            newMode = .beacon
+        } else if sender.selectedSegmentIndex == 1 {
+            newMode = .ble
+        }
+        if let mode = newMode {
+            beaconService?.deviceMode = mode
+            startBeacon()
+        }
+    }
 
     private func startBeacon() {
         guard let service = beaconService else {
             return
         }
 
-        service.start { [weak self] in
-            self?.statusLabel.text = "Advertising"
+        service.start { [weak self] newState in
+            self?.statusLabel.text = newState.description
         }
     }
 
+}
+
+extension StateChanged: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .started: return "Advertising"
+        case .responded(let responseValue): return "Unlock response: \(responseValue)"
+        case .subscribed: return "Got Subscriber"
+        case .unsubscribed: return "No Subscribers"
+        }
+    }
 }
 

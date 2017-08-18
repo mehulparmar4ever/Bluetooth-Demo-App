@@ -55,14 +55,63 @@ private extension CLProximity {
 
 class BeaconService: NSObject {
 
+    var deviceMode: DeviceBluetoothMode = .beacon
+
     private var locationManager: CLLocationManager?
+
+    fileprivate var centralManager: CBCentralManager?
     fileprivate var stateChanged: ((StateChanged) -> Void)?
     fileprivate var monitoredRegion: CLBeaconRegion!
+    fileprivate var connectedPeripheral: CBPeripheral?
+    fileprivate var keyCharacteristic: CBCharacteristic?
+    fileprivate var unlockResultCharacteristic: CBCharacteristic?
+
+    fileprivate var readValueCallback: ((Int) -> Void)?
 
     func start(_ stateChangeCallback: @escaping (StateChanged) -> Void) {
-        locationManager = CLLocationManager()
-        locationManager?.delegate = self
+        print("Started as \(deviceMode)")
+        prepareForReuse()
+        if deviceMode == .beacon {
+            locationManager = CLLocationManager()
+            locationManager?.delegate = self
+        } else {
+            centralManager = CBCentralManager(delegate: self, queue: nil)
+        }
         stateChanged = stateChangeCallback
+    }
+
+    private func prepareForReuse() {
+        centralManager = nil
+        locationManager = nil
+        connectedPeripheral = nil
+        keyCharacteristic = nil
+        unlockResultCharacteristic = nil
+    }
+
+    func readValue(_ callback: @escaping (Int) -> Void) {
+        readValueCallback = callback
+        // Should connect before reading
+        if let manager = centralManager, let peripheral = connectedPeripheral {
+            manager.connect(peripheral)
+        }
+    }
+    func writeValue(_ value: String) {
+        guard let peripheral = connectedPeripheral,
+            let char = unlockResultCharacteristic,
+            let data = value.data(using: .ascii) else { return }
+
+        // We should be still connected after a read
+        peripheral.writeValue(data, for: char, type: .withResponse)
+        print("Sent.")
+    }
+
+    func disconnect() {
+        guard let connected = connectedPeripheral, let manager = centralManager else { return }
+
+        manager.cancelPeripheralConnection(connected)
+        keyCharacteristic = nil
+        unlockResultCharacteristic = nil
+        print("Disconnected")
     }
 
     fileprivate func monitorBeacons() {
@@ -70,6 +119,7 @@ class BeaconService: NSObject {
             print("Beacon monitoring is not available")
             return
         }
+        print("Monitoring beacons...")
 
         let proximityUUID = UUID(uuidString: senderUuidString)!
 
@@ -80,6 +130,7 @@ class BeaconService: NSObject {
 
 }
 
+// MARK: - Beacon part
 extension BeaconService: CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -128,4 +179,88 @@ extension BeaconService: CLLocationManagerDelegate {
         stateChanged?(.inside(model))
     }
 
+}
+
+// MARK: - Bluetooth LE part
+extension BeaconService: CBCentralManagerDelegate {
+
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        print("\(central.state): \(central.state.rawValue)")
+
+        if central.state == .poweredOn {
+            central.scanForPeripherals(withServices: [CBUUID(string: senderUuidString)], options: nil)
+        }
+    }
+
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        connectedPeripheral = peripheral
+        peripheral.delegate = self
+
+        central.stopScan()
+    }
+
+    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        print("Connected to \(peripheral.name ?? "Unnamed")")
+        peripheral.discoverServices(nil)
+    }
+
+    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        if let err = error {
+            print("Connection error: \(err)")
+        } else {
+            print("Could not connect to \(String(describing: peripheral.name))")
+        }
+    }
+
+}
+
+extension BeaconService: CBPeripheralDelegate {
+
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        if let value = characteristic.value, let byte = value.first {
+            print("Value is \(byte)")
+            readValueCallback?(Int(byte))
+        }
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        if let err = error {
+            print("Could not write value: \(err)")
+        } else {
+            disconnect()
+        }
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+        print("Updated notification state for \(characteristic)")
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        let services = peripheral.services ?? []
+        services.filter { $0.uuid.uuidString == senderUuidString }.forEach { service in
+            print("Discover characteristics...")
+            peripheral.discoverCharacteristics(nil, for: service)
+        }
+    }
+
+//    func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
+//        print("RSSI is \(RSSI)")
+//    }
+//
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        let characteristics = service.characteristics ?? []
+        for char in characteristics {
+            if char.uuid.uuidString == characteristicUuid {
+                keyCharacteristic = char
+                print("Read value for \(char)")
+                peripheral.readValue(for: char)
+            } else if char.uuid.uuidString == unlockStatusCharacteristicUuid {
+                unlockResultCharacteristic = char
+            }
+        }
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
+        disconnect()
+    }
 }

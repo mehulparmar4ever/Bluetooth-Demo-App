@@ -19,6 +19,11 @@ class ViewController: UIViewController {
 
     private weak var unlockTimer: Timer?
     private var latestBeaconModel: BeaconModel?
+    private var deviceMode: DeviceBluetoothMode = .beacon {
+        didSet {
+            beaconService?.deviceMode = deviceMode
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,15 +34,30 @@ class ViewController: UIViewController {
 
         startMonitoring()
     }
+    @IBAction func modeChanged(_ sender: UISegmentedControl) {
+        if sender.selectedSegmentIndex == 0 {
+            deviceMode = .beacon
+        } else if sender.selectedSegmentIndex == 1 {
+            deviceMode = .ble
+        }
+        startMonitoring()
+    }
 
     private func startMonitoring() {
         guard let service = beaconService else {
             return
         }
+        stopTimer()
 
         service.start { [weak self] state in
             self?.statusLabel.text = String(describing: state)
-            self?.locationChanged(state)
+            if let mode = self?.deviceMode, mode == .beacon {
+                self?.locationChanged(state)
+            }
+        }
+
+        if deviceMode == .ble {
+            startTimer()
         }
     }
 
@@ -45,33 +65,63 @@ class ViewController: UIViewController {
         if case let .inside(model) = state {
             latestBeaconModel = model
             if unlockTimer == nil {
-                print("Started 'unlock the door' timer")
-                let timer = Timer(timeInterval: unlockTime, target: self, selector: #selector(unlockTheDoor), userInfo: nil, repeats: true)
-                RunLoop.main.add(timer, forMode: .defaultRunLoopMode)
-                self.unlockTimer = timer
+                startTimer()
             }
         } else {
             latestBeaconModel = nil
-            if let timer = unlockTimer {
-                print("Removed 'unlock the door' timer")
-                unlockTimer = nil
-                timer.invalidate()
-            }
+            stopTimer()
+        }
+    }
+
+    private func startTimer() {
+        print("Started 'unlock the door' timer")
+        let timer = Timer(timeInterval: unlockTime, target: self, selector: #selector(unlockTheDoor), userInfo: nil, repeats: false)
+        RunLoop.main.add(timer, forMode: .defaultRunLoopMode)
+        unlockTimer = timer
+
+    }
+    private func stopTimer() {
+        if let timer = unlockTimer {
+            print("Removed 'unlock the door' timer")
+            unlockTimer = nil
+            timer.invalidate()
         }
     }
 
     @objc func unlockTheDoor() {
-        guard let model = latestBeaconModel, model.proximity != .unknown, model.minor == 1, model.accuracy <= 0.5 else {
-            print("Do not unlock the door")
-            return
+        unlockConditionsMet { [weak self] shouldUnlock in
+            guard shouldUnlock else {
+                self?.startTimer()
+                return
+            }
+            print("Unlock the door...")
+            self?.lockService?.unlock { response in
+                if let responseMessage = response {
+                    print("Unlock result: \(responseMessage). Send to Sender…")
+                    self?.beaconService?.writeValue(responseMessage)
+                } else {
+                    print("Door not unlocked :(")
+                }
+                self?.startTimer()
+            }
         }
+    }
 
-        print("Unlock the door")
-        lockService?.unlock { response in
-            if let responseMessage = response {
-                print("Unlock result: \(responseMessage)")
-            } else {
-                print("Door not unlocked :(")
+    private func unlockConditionsMet(_ callback: @escaping (Bool) -> Void) {
+        switch deviceMode {
+        case .beacon:
+            guard let model = latestBeaconModel else { return }
+            let shouldUnlock = model.proximity != .unknown && model.minor == 1 && model.accuracy <= 0.5
+            callback(shouldUnlock)
+        case .ble:
+            guard let service = beaconService else { return }
+            service.readValue { value in
+                if value != 1 {
+                    print("Got 0. Disconnect.")
+                    service.disconnect()
+                }
+                let shouldUnlock = (value == 1)
+                callback(shouldUnlock)
             }
         }
     }
