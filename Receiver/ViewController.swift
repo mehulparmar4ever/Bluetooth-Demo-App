@@ -19,6 +19,10 @@ class ViewController: UIViewController {
     var beaconService: BeaconService?
     var lockService: LockService?
 
+    /// Notification Center observers – remove in deinit
+    private var notificationTokens: [Any] = []
+    /// Indicates if the screen was not opened before
+    private var firstTimeOpen = true
     private var unlockTimer: Timer?
     private var latestBeaconModel: BeaconModel?
     private var deviceMode: DeviceBluetoothMode = .beacon {
@@ -35,19 +39,30 @@ class ViewController: UIViewController {
         unlockAnimationView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         unlockAnimationView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
 
-        NotificationCenter.default.addObserver(forName: .UIApplicationDidEnterBackground, object: nil, queue: nil) { [weak self] note in
+        let token1 = NotificationCenter.default.addObserver(forName: .UIApplicationDidEnterBackground, object: nil, queue: nil) { [weak self] note in
             self?.stopTimer()
             self?.beaconService?.stop()
         }
-        NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationWillEnterForeground, object: nil, queue: nil) { [weak self] note in
-            self?.startMonitoring()
+        notificationTokens.append(token1)
+        let token2 = NotificationCenter.default.addObserver(forName: .UIApplicationWillEnterForeground, object: nil, queue: nil) { [weak self] note in
+            self?.showSplashScreen()
+        }
+        notificationTokens.append(token2)
+    }
+
+    deinit {
+        for observer in notificationTokens {
+            NotificationCenter.default.removeObserver(observer)
         }
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        startMonitoring()
+        if firstTimeOpen {
+            startMonitoring()
+            firstTimeOpen = false
+        }
     }
     @IBAction func modeChanged(_ sender: UISegmentedControl) {
         if sender.selectedSegmentIndex == 0 {
@@ -56,6 +71,18 @@ class ViewController: UIViewController {
             deviceMode = .ble
         }
         startMonitoring()
+    }
+
+    private func showSplashScreen() {
+        let splashVc = UIViewController()
+        splashVc.view.backgroundColor = view.tintColor
+
+        present(splashVc, animated: false)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            self.dismiss(animated: true)
+            self.startMonitoring()
+        }
     }
 
     private func playUnlockAnimation() {
