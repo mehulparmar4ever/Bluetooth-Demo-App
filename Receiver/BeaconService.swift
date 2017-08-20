@@ -79,6 +79,10 @@ class BeaconService: NSObject {
         }
         stateChanged = stateChangeCallback
     }
+    func stop() {
+        stateChanged = nil
+        prepareForReuse()
+    }
 
     private func prepareForReuse() {
         centralManager = nil
@@ -175,7 +179,7 @@ extension BeaconService: CLLocationManagerDelegate {
         let minor = CLBeaconMinorValue(nearestBeacon.minor)
 
         let model = BeaconModel(major: major, minor: minor, proximity: nearestBeacon.proximity, accuracy: nearestBeacon.accuracy)
-        print("\(model)")
+//        print("\(model)")
         stateChanged?(.inside(model))
     }
 

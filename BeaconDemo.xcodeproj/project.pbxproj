@@ -20,6 +20,7 @@
 		C848FE4F1F3EBA6800932D3B /* Identifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = C848FE4E1F3EBA6800932D3B /* Identifiers.swift */; };
 		C848FE501F3EBA9300932D3B /* Identifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = C848FE4E1F3EBA6800932D3B /* Identifiers.swift */; };
 		C848FE521F3EBB4600932D3B /* BeaconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C848FE511F3EBB4600932D3B /* BeaconService.swift */; };
+		C867848D1F480A1900E90257 /* UnlockAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C867848C1F480A1900E90257 /* UnlockAnimationView.swift */; };
 		C8A50C6F1F46C0B800A721BE /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A50C6E1F46C0B800A721BE /* ProfileViewController.swift */; };
 		C8C88E731F3F05C900C24B72 /* BeaconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8C88E721F3F05C900C24B72 /* BeaconService.swift */; };
 		C8C88E751F404C2A00C24B72 /* LockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8C88E741F404C2A00C24B72 /* LockService.swift */; };
@@ -43,6 +44,7 @@
 		C8470FF71F3E071800B1AA98 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C848FE4E1F3EBA6800932D3B /* Identifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identifiers.swift; sourceTree = "<group>"; };
 		C848FE511F3EBB4600932D3B /* BeaconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconService.swift; sourceTree = "<group>"; };
+		C867848C1F480A1900E90257 /* UnlockAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockAnimationView.swift; sourceTree = "<group>"; };
 		C8A50C6E1F46C0B800A721BE /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		C8C88E721F3F05C900C24B72 /* BeaconService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconService.swift; sourceTree = "<group>"; };
 		C8C88E741F404C2A00C24B72 /* LockService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockService.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				C8470FF21F3E071800B1AA98 /* Assets.xcassets */,
 				C8470FF41F3E071800B1AA98 /* LaunchScreen.storyboard */,
 				C8470FF71F3E071800B1AA98 /* Info.plist */,
+				C867848C1F480A1900E90257 /* UnlockAnimationView.swift */,
 			);
 			path = Receiver;
 			sourceTree = "<group>";
@@ -243,6 +246,7 @@
 				C8470FEE1F3E071800B1AA98 /* ViewController.swift in Sources */,
 				C848FE501F3EBA9300932D3B /* Identifiers.swift in Sources */,
 				C8470FEC1F3E071800B1AA98 /* AppDelegate.swift in Sources */,
+				C867848D1F480A1900E90257 /* UnlockAnimationView.swift in Sources */,
 				C8C88E731F3F05C900C24B72 /* BeaconService.swift in Sources */,
 				C8A50C6F1F46C0B800A721BE /* ProfileViewController.swift in Sources */,
 				C8C88E771F405AF700C24B72 /* NetworkService.swift in Sources */,

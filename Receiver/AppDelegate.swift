@@ -23,9 +23,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         beaconService = BeaconService()
         lockService = LockService(network: network)
 
-        if let rootVc = window?.rootViewController as? ViewController {
-            rootVc.beaconService = beaconService
-            rootVc.lockService = lockService
+        if let tabVc = window?.rootViewController as? UITabBarController {
+            if let rootVc = tabVc.viewControllers?[0] as? ViewController {
+                rootVc.beaconService = beaconService
+                rootVc.lockService = lockService
+            }
         }
 
         return true
