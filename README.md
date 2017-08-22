@@ -30,4 +30,4 @@ Both apps have a switch between iBeacon mode and BLE mode.
 
 ### Video 
 
-... will be available later.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/A3yp2jNX3SU" frameborder="0" allowfullscreen></iframe>
